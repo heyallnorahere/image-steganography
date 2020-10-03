@@ -68,4 +68,44 @@ namespace common {
 		std::cout << "finished writing!" << std::endl;
 		return 0;
 	}
+	int decode(const std::string& image_file_name, int text_length, int bits, const std::string& output_file_name) {
+		int width, height, channels;
+		unsigned char* data = stbi_load(image_file_name.c_str(), &width, &height, &channels, NULL);
+		if (!data) {
+			std::cout << "could not load image: " << image_file_name << std::endl;
+			return -2;
+		}
+		std::cout << "loaded image: " << image_file_name << std::endl;
+		int bytes_per_character = 8 / bits;
+		if (text_length * bytes_per_character > width * height * channels) {
+			std::cout << "text is too long" << std::endl;
+			return -3;
+		}
+		std::vector<unsigned char> bytes;
+		for (int i = 0; i < width * height * channels; i++) {
+			bytes.push_back(data[i]);
+		}
+		stbi_image_free(data);
+		std::stringstream text;
+		int bits_allowed = ~(255 << bits);
+		int shift = 0;
+		char character_to_commit = (char)0;
+		std::cout << "decoding text..." << std::endl;
+		for (int i = 0; i < bytes_per_character * text_length; i++) {
+			unsigned char byte = bytes[i];
+			byte = byte & bits_allowed;
+			character_to_commit = character_to_commit | byte << shift;
+			shift += bits;
+			if (!(shift % 8)) {
+				shift = 0;
+				text << character_to_commit;
+				character_to_commit = (char)0;
+			}
+		}
+		std::string text_str = text.str();
+		std::ofstream output_file(output_file_name);
+		output_file << text_str << std::endl;
+		output_file.close();
+		return 0;
+	}
 }

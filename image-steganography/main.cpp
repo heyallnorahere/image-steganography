@@ -24,6 +24,7 @@ int main(int argc, const char** argv) {
 	}
 	std::string input_image_file_name = argv[1];
 	std::string input_text = read_file(argv[2], ' ');
+	input_text = input_text.substr(0, input_text.length() - 1);
 	int bits = atoi(argv[3]);
 	std::string output_file_name = argv[4];
 	return common::encode(input_image_file_name, input_text, bits, output_file_name);
