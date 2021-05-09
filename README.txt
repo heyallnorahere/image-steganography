@@ -2,4 +2,4 @@ this is an encoder/decoder for image steganography, specifically for setting lea
 
 currently readable formats:
 PNG
-JPEG/JPG
+JPEG
